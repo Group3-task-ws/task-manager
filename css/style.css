@@ -1,0 +1,67 @@
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+input, select, button {
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+}
+
+button {
+    background: #22c55e;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #16a34a;
+}
+
+/* Task cards */
+.task-card {
+    background: #1e293b;
+    padding: 15px;
+    margin: 10px auto;
+    border-radius: 10px;
+    max-width: 600px;
+}
+
+.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.badge {
+    background: gray;
+    padding: 3px 8px;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.priority-low {
+    background: green;
+}
+
+.priority-medium {
+    background: orange;
+}
+
+.priority-high {
+    background: red;
+}

@@ -2,36 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <div class="container">
-        <h1>Task Manager</h1>
+    <h1>Task Manager</h1>
 
-        <!-- Add Task -->
-        <div class="task-input">
-            <input type="text" id="taskInput" placeholder="Enter a task">
-            <button onclick="addTask()">Add Task</button>
-        </div>
+    <form onsubmit="addTask(event)">
 
-        <!-- Filter -->
-        <div class="filters">
-            <button onclick="filterTasks('all')">All</button>
-            <button onclick="filterTasks('completed')">Completed</button>
-            <button onclick="filterTasks('pending')">Pending</button>
-        </div>
+        <input type="text" id="title" placeholder="Task Title" required>
 
-        <!-- Task List -->
-        <ul id="taskList"></ul>
-    </div>
+        <input type="text" id="description" placeholder="Description">
 
-    <!-- JS Files -->
-    <script src="storage.js"></script>
-    <script src="tasks.js"></script>
-    <script src="filter.js"></script>
+        <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Personal">Personal</option>
+            <option value="Work">Work</option>
+        </select>
+
+        <select id="priority" required>
+            <option value="">Select Priority</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
+
+        <input type="date" id="dueDate" required>
+
+        <button type="submit">Add Task</button>
+
+    </form>
+
+    <hr>
+
+    <!-- Day 3: Card container -->
+    <div id="taskList"></div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/tasks.js"></script>
 
 </body>
 </html>
