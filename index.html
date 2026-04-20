@@ -9,7 +9,7 @@
 
     <h1>Task Manager</h1>
 
-    <form onsubmit="addTask(event)">
+    <form onsubmit="handleSubmit(event)">
 
         <input type="text" id="title" placeholder="Task Title" required>
 
@@ -30,13 +30,12 @@
 
         <input type="date" id="dueDate" required>
 
-        <button type="submit">Add Task</button>
+        <button type="submit" id="submitBtn">Add Task</button>
 
     </form>
 
     <hr>
 
-    <!-- Day 3: Card container -->
     <div id="taskList"></div>
 
     <script src="js/storage.js"></script>

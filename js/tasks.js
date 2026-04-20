@@ -1,25 +1,24 @@
 let tasks = loadTasks();
+let editId = null; // 🔥 important for editing
 
-// ADD TASK
-function addTask(event) {
+// HANDLE FORM SUBMIT
+function handleSubmit(event) {
     event.preventDefault();
 
-    let title = document.getElementById("title").value;
-    let description = document.getElementById("description").value;
-    let category = document.getElementById("category").value;
-    let priority = document.getElementById("priority").value;
-    let dueDate = document.getElementById("dueDate").value;
+    if (editId) {
+        updateTask();
+    } else {
+        addTask();
+    }
+}
 
-    let task = {
-        id: Date.now(),
-        title,
-        description,
-        category,
-        priority,
-        dueDate,
-        completed: false,
-        createdAt: new Date().toLocaleString()
-    };
+// ADD TASK
+function addTask() {
+    let task = getFormData();
+
+    task.id = Date.now();
+    task.completed = false;
+    task.createdAt = new Date().toLocaleString();
 
     tasks.push(task);
     saveTasks(tasks);
@@ -28,7 +27,35 @@ function addTask(event) {
     clearForm();
 }
 
-// RENDER TASKS (Day 3)
+// UPDATE TASK
+function updateTask() {
+    let updatedTask = getFormData();
+
+    tasks = tasks.map(task =>
+        task.id === editId ? { ...task, ...updatedTask } : task
+    );
+
+    saveTasks(tasks);
+
+    editId = null;
+    document.getElementById("submitBtn").innerText = "Add Task";
+
+    renderTasks();
+    clearForm();
+}
+
+// GET FORM DATA
+function getFormData() {
+    return {
+        title: document.getElementById("title").value,
+        description: document.getElementById("description").value,
+        category: document.getElementById("category").value,
+        priority: document.getElementById("priority").value,
+        dueDate: document.getElementById("dueDate").value
+    };
+}
+
+// RENDER TASKS
 function renderTasks() {
     let container = document.getElementById("taskList");
     container.innerHTML = "";
@@ -47,7 +74,14 @@ function renderTasks() {
         }
 
         div.innerHTML = `
-            <h3>${task.title}</h3>
+            <div class="task-top">
+                <input type="checkbox"
+                    ${task.completed ? "checked" : ""}
+                    onchange="toggleTask(${task.id})">
+
+                <h3>${task.title}</h3>
+            </div>
+
             <p>${task.description}</p>
 
             <span class="badge">${task.category}</span>
@@ -57,12 +91,27 @@ function renderTasks() {
 
             <p>📅 ${task.dueDate}</p>
 
-            <button onclick="toggleTask(${task.id})">✔</button>
-            <button onclick="deleteTask(${task.id})">❌</button>
+            <button onclick="editTask(${task.id})">Edit</button>
+            <button onclick="deleteTask(${task.id})">Delete</button>
         `;
 
         container.appendChild(div);
     });
+}
+
+// EDIT TASK (🔥 MAIN FEATURE)
+function editTask(id) {
+    let task = tasks.find(t => t.id === id);
+
+    document.getElementById("title").value = task.title;
+    document.getElementById("description").value = task.description;
+    document.getElementById("category").value = task.category;
+    document.getElementById("priority").value = task.priority;
+    document.getElementById("dueDate").value = task.dueDate;
+
+    editId = id;
+
+    document.getElementById("submitBtn").innerText = "Update Task";
 }
 
 // TOGGLE COMPLETE
