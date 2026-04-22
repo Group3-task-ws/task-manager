@@ -1,9 +1,14 @@
 let tasks = loadTasks();
-let editId = null; // 🔥 important for editing
+let editId = null;
 
-// HANDLE FORM SUBMIT
-function handleSubmit(event) {
-    event.preventDefault();
+// 🔥 FILTER STATES
+let statusFilter = "all";
+let priorityFilter = "all";
+let searchText = "";
+
+// HANDLE FORM
+function handleSubmit(e) {
+    e.preventDefault();
 
     if (editId) {
         updateTask();
@@ -18,7 +23,6 @@ function addTask() {
 
     task.id = Date.now();
     task.completed = false;
-    task.createdAt = new Date().toLocaleString();
 
     tasks.push(task);
     saveTasks(tasks);
@@ -29,10 +33,10 @@ function addTask() {
 
 // UPDATE TASK
 function updateTask() {
-    let updatedTask = getFormData();
+    let updated = getFormData();
 
-    tasks = tasks.map(task =>
-        task.id === editId ? { ...task, ...updatedTask } : task
+    tasks = tasks.map(t =>
+        t.id === editId ? { ...t, ...updated } : t
     );
 
     saveTasks(tasks);
@@ -55,41 +59,68 @@ function getFormData() {
     };
 }
 
-// RENDER TASKS
+// 🔥 FILTER FUNCTIONS
+function setStatusFilter(type) {
+    statusFilter = type;
+    renderTasks();
+}
+
+function setPriorityFilter(value) {
+    priorityFilter = value;
+    renderTasks();
+}
+
+function setSearch(value) {
+    searchText = value.toLowerCase();
+    renderTasks();
+}
+
+// 🔥 APPLY FILTER LOGIC
+function getFilteredTasks() {
+    return tasks.filter(task => {
+
+        // status filter
+        if (statusFilter === "active" && task.completed) return false;
+        if (statusFilter === "completed" && !task.completed) return false;
+
+        // priority filter
+        if (priorityFilter !== "all" && task.priority.toLowerCase() !== priorityFilter) {
+            return false;
+        }
+
+        // search filter
+        if (!task.title.toLowerCase().includes(searchText)) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+// RENDER
 function renderTasks() {
     let container = document.getElementById("taskList");
     container.innerHTML = "";
 
-    if (tasks.length === 0) {
-        container.innerHTML = "<p>No tasks available</p>";
+    let filtered = getFilteredTasks();
+
+    if (filtered.length === 0) {
+        container.innerHTML = "<p>No tasks found</p>";
         return;
     }
 
-    tasks.forEach(task => {
+    filtered.forEach(task => {
         let div = document.createElement("div");
         div.className = "task-card";
 
-        if (task.completed) {
-            div.classList.add("completed");
-        }
+        if (task.completed) div.classList.add("completed");
 
         div.innerHTML = `
-            <div class="task-top">
-                <input type="checkbox"
-                    ${task.completed ? "checked" : ""}
-                    onchange="toggleTask(${task.id})">
+            <input type="checkbox"
+                ${task.completed ? "checked" : ""}
+                onchange="toggleTask(${task.id})">
 
-                <h3>${task.title}</h3>
-            </div>
-
-            <p>${task.description}</p>
-
-            <span class="badge">${task.category}</span>
-            <span class="badge priority-${task.priority.toLowerCase()}">
-                ${task.priority}
-            </span>
-
-            <p>📅 ${task.dueDate}</p>
+            <b>${task.title}</b> (${task.priority})
 
             <button onclick="editTask(${task.id})">Edit</button>
             <button onclick="deleteTask(${task.id})">Delete</button>
@@ -99,40 +130,38 @@ function renderTasks() {
     });
 }
 
-// EDIT TASK (🔥 MAIN FEATURE)
-function editTask(id) {
-    let task = tasks.find(t => t.id === id);
-
-    document.getElementById("title").value = task.title;
-    document.getElementById("description").value = task.description;
-    document.getElementById("category").value = task.category;
-    document.getElementById("priority").value = task.priority;
-    document.getElementById("dueDate").value = task.dueDate;
-
-    editId = id;
-
-    document.getElementById("submitBtn").innerText = "Update Task";
-}
-
-// TOGGLE COMPLETE
+// TOGGLE
 function toggleTask(id) {
-    tasks = tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
+    tasks = tasks.map(t =>
+        t.id === id ? { ...t, completed: !t.completed } : t
     );
 
     saveTasks(tasks);
     renderTasks();
 }
 
-// DELETE TASK
+// DELETE
 function deleteTask(id) {
-    tasks = tasks.filter(task => task.id !== id);
-
+    tasks = tasks.filter(t => t.id !== id);
     saveTasks(tasks);
     renderTasks();
 }
 
-// CLEAR FORM
+// EDIT
+function editTask(id) {
+    let t = tasks.find(t => t.id === id);
+
+    document.getElementById("title").value = t.title;
+    document.getElementById("description").value = t.description;
+    document.getElementById("category").value = t.category;
+    document.getElementById("priority").value = t.priority;
+    document.getElementById("dueDate").value = t.dueDate;
+
+    editId = id;
+    document.getElementById("submitBtn").innerText = "Update Task";
+}
+
+// CLEAR
 function clearForm() {
     document.getElementById("title").value = "";
     document.getElementById("description").value = "";
@@ -141,5 +170,5 @@ function clearForm() {
     document.getElementById("dueDate").value = "";
 }
 
-// LOAD ON START
+// LOAD
 renderTasks();

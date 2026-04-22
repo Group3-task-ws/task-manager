@@ -7,39 +7,52 @@
 </head>
 <body>
 
-    <h1>Task Manager</h1>
+<h1>Task Manager</h1>
 
-    <form onsubmit="handleSubmit(event)">
+<form onsubmit="handleSubmit(event)">
+    <input type="text" id="title" placeholder="Task Title" required>
+    <input type="text" id="description" placeholder="Description">
 
-        <input type="text" id="title" placeholder="Task Title" required>
+    <select id="category" required>
+        <option value="">Category</option>
+        <option value="Personal">Personal</option>
+        <option value="Work">Work</option>
+    </select>
 
-        <input type="text" id="description" placeholder="Description">
+    <select id="priority" required>
+        <option value="">Priority</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select>
 
-        <select id="category" required>
-            <option value="">Select Category</option>
-            <option value="Personal">Personal</option>
-            <option value="Work">Work</option>
-        </select>
+    <input type="date" id="dueDate" required>
 
-        <select id="priority" required>
-            <option value="">Select Priority</option>
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-        </select>
+    <button type="submit" id="submitBtn">Add Task</button>
+</form>
 
-        <input type="date" id="dueDate" required>
+<hr>
 
-        <button type="submit" id="submitBtn">Add Task</button>
+<!-- 🔥 FILTER SECTION -->
+<div class="filters">
+    <button onclick="setStatusFilter('all')">All</button>
+    <button onclick="setStatusFilter('active')">Active</button>
+    <button onclick="setStatusFilter('completed')">Completed</button>
 
-    </form>
+    <select onchange="setPriorityFilter(this.value)">
+        <option value="all">All Priority</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+    </select>
 
-    <hr>
+    <input type="text" placeholder="Search..." oninput="setSearch(this.value)">
+</div>
 
-    <div id="taskList"></div>
+<div id="taskList"></div>
 
-    <script src="js/storage.js"></script>
-    <script src="js/tasks.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/tasks.js"></script>
 
 </body>
 </html>
