@@ -1,174 +1,130 @@
-let tasks = loadTasks();
-let editId = null;
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-// 🔥 FILTER STATES
-let statusFilter = "all";
-let priorityFilter = "all";
-let searchText = "";
+document.addEventListener("DOMContentLoaded", () => {
 
-// HANDLE FORM
-function handleSubmit(e) {
-    e.preventDefault();
+    const form = document.getElementById("taskForm");
 
-    if (editId) {
-        updateTask();
-    } else {
-        addTask();
-    }
-}
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
 
-// ADD TASK
-function addTask() {
-    let task = getFormData();
+        const title = document.getElementById("title").value.trim();
+        const desc = document.getElementById("desc").value.trim();
+        const category = document.getElementById("category").value;
+        const priority = document.getElementById("priority").value;
+        const dueDate = document.getElementById("dueDate").value;
 
-    task.id = Date.now();
-    task.completed = false;
-
-    tasks.push(task);
-    saveTasks(tasks);
-
-    renderTasks();
-    clearForm();
-}
-
-// UPDATE TASK
-function updateTask() {
-    let updated = getFormData();
-
-    tasks = tasks.map(t =>
-        t.id === editId ? { ...t, ...updated } : t
-    );
-
-    saveTasks(tasks);
-
-    editId = null;
-    document.getElementById("submitBtn").innerText = "Add Task";
-
-    renderTasks();
-    clearForm();
-}
-
-// GET FORM DATA
-function getFormData() {
-    return {
-        title: document.getElementById("title").value,
-        description: document.getElementById("description").value,
-        category: document.getElementById("category").value,
-        priority: document.getElementById("priority").value,
-        dueDate: document.getElementById("dueDate").value
-    };
-}
-
-// 🔥 FILTER FUNCTIONS
-function setStatusFilter(type) {
-    statusFilter = type;
-    renderTasks();
-}
-
-function setPriorityFilter(value) {
-    priorityFilter = value;
-    renderTasks();
-}
-
-function setSearch(value) {
-    searchText = value.toLowerCase();
-    renderTasks();
-}
-
-// 🔥 APPLY FILTER LOGIC
-function getFilteredTasks() {
-    return tasks.filter(task => {
-
-        // status filter
-        if (statusFilter === "active" && task.completed) return false;
-        if (statusFilter === "completed" && !task.completed) return false;
-
-        // priority filter
-        if (priorityFilter !== "all" && task.priority.toLowerCase() !== priorityFilter) {
-            return false;
+        if (!title || !desc || !dueDate) {
+            alert("Fill all fields");
+            return;
         }
 
-        // search filter
-        if (!task.title.toLowerCase().includes(searchText)) {
-            return false;
-        }
+        const newTask = {
+            id: Date.now(),
+            title,
+            description: desc,
+            category,
+            priority,
+            dueDate,
+            completed: false
+        };
 
-        return true;
+        tasks.push(newTask);
+        saveTasks();
+
+        form.reset();
+        renderTasks();
     });
+
+    renderTasks();
+});
+
+
+function saveTasks() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// RENDER
+
 function renderTasks() {
-    let container = document.getElementById("taskList");
-    container.innerHTML = "";
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
 
-    let filtered = getFilteredTasks();
+    const today = new Date().toISOString().split("T")[0];
 
-    if (filtered.length === 0) {
-        container.innerHTML = "<p>No tasks found</p>";
+    if (tasks.length === 0) {
+        list.innerHTML = "<p>No tasks</p>";
+        updateStats();
         return;
     }
 
-    filtered.forEach(task => {
-        let div = document.createElement("div");
+    tasks.forEach(task => {
+
+        const div = document.createElement("div");
         div.className = "task-card";
 
         if (task.completed) div.classList.add("completed");
+        if (!task.completed && task.dueDate < today) div.classList.add("overdue");
 
         div.innerHTML = `
-            <input type="checkbox"
-                ${task.completed ? "checked" : ""}
-                onchange="toggleTask(${task.id})">
+            <h3>${task.title}</h3>
+            <p>${task.description}</p>
+            <small>${task.category} | ${task.priority}</small><br>
+            <small>Due: ${task.dueDate}</small>
 
-            <b>${task.title}</b> (${task.priority})
-
-            <button onclick="editTask(${task.id})">Edit</button>
-            <button onclick="deleteTask(${task.id})">Delete</button>
+            <br><br>
+            <button onclick="toggleComplete(${task.id})">✔</button>
+            <button class="delete-btn" onclick="deleteTask(${task.id})">X</button>
         `;
 
-        container.appendChild(div);
+        list.appendChild(div);
     });
+
+    updateStats();
 }
 
-// TOGGLE
-function toggleTask(id) {
-    tasks = tasks.map(t =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-    );
 
-    saveTasks(tasks);
-    renderTasks();
-}
-
-// DELETE
 function deleteTask(id) {
     tasks = tasks.filter(t => t.id !== id);
-    saveTasks(tasks);
+    saveTasks();
     renderTasks();
 }
 
-// EDIT
-function editTask(id) {
-    let t = tasks.find(t => t.id === id);
 
-    document.getElementById("title").value = t.title;
-    document.getElementById("description").value = t.description;
-    document.getElementById("category").value = t.category;
-    document.getElementById("priority").value = t.priority;
-    document.getElementById("dueDate").value = t.dueDate;
+function toggleComplete(id) {
+    tasks = tasks.map(t => {
+        if (t.id === id) t.completed = !t.completed;
+        return t;
+    });
 
-    editId = id;
-    document.getElementById("submitBtn").innerText = "Update Task";
+    saveTasks();
+    renderTasks();
 }
 
-// CLEAR
-function clearForm() {
-    document.getElementById("title").value = "";
-    document.getElementById("description").value = "";
-    document.getElementById("category").value = "";
-    document.getElementById("priority").value = "";
-    document.getElementById("dueDate").value = "";
-}
 
-// LOAD
-renderTasks();
+/* DASHBOARD */
+function updateStats() {
+
+    const today = new Date().toISOString().split("T")[0];
+
+    let total = tasks.length;
+    let completedToday = 0;
+    let pending = 0;
+    let overdue = 0;
+
+    tasks.forEach(task => {
+
+        if (task.completed) {
+            if (task.dueDate === today) completedToday++;
+        } else {
+            pending++;
+        }
+
+        if (!task.completed && task.dueDate < today) {
+            overdue++;
+        }
+    });
+
+    document.getElementById("totalTasks").innerText = total;
+    document.getElementById("completedToday").innerText = completedToday;
+    document.getElementById("pendingTasks").innerText = pending;
+    document.getElementById("overdueTasks").innerText = overdue;
+}

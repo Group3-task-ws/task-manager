@@ -1,58 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Task Manager</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Task Manager</title>
+
+<link rel="stylesheet" href="css/style.css">
+<script src="js/tasks.js" defer></script>
 </head>
+
 <body>
 
-<h1>Task Manager</h1>
+<div class="container">
 
-<form onsubmit="handleSubmit(event)">
-    <input type="text" id="title" placeholder="Task Title" required>
-    <input type="text" id="description" placeholder="Description">
+    <h1>Task Manager</h1>
 
-    <select id="category" required>
-        <option value="">Category</option>
-        <option value="Personal">Personal</option>
-        <option value="Work">Work</option>
-    </select>
+    <!-- FORM -->
+    <form id="taskForm" class="task-form">
+        <input type="text" id="title" placeholder="Task Title" required>
+        <input type="text" id="desc" placeholder="Description" required>
 
-    <select id="priority" required>
-        <option value="">Priority</option>
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
-    </select>
+        <select id="category">
+            <option value="Personal">Personal</option>
+            <option value="Work">Work</option>
+        </select>
 
-    <input type="date" id="dueDate" required>
+        <select id="priority">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select>
 
-    <button type="submit" id="submitBtn">Add Task</button>
-</form>
+        <input type="date" id="dueDate" required>
 
-<hr>
+        <button type="submit">Add Task</button>
+    </form>
 
-<!-- 🔥 FILTER SECTION -->
-<div class="filters">
-    <button onclick="setStatusFilter('all')">All</button>
-    <button onclick="setStatusFilter('active')">Active</button>
-    <button onclick="setStatusFilter('completed')">Completed</button>
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+        <div class="card">
+            <h3>Total</h3>
+            <p id="totalTasks">0</p>
+        </div>
 
-    <select onchange="setPriorityFilter(this.value)">
-        <option value="all">All Priority</option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-    </select>
+        <div class="card">
+            <h3>Completed Today</h3>
+            <p id="completedToday">0</p>
+        </div>
 
-    <input type="text" placeholder="Search..." oninput="setSearch(this.value)">
+        <div class="card">
+            <h3>Pending</h3>
+            <p id="pendingTasks">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Overdue</h3>
+            <p id="overdueTasks">0</p>
+        </div>
+    </div>
+
+    <!-- TASK LIST -->
+    <div id="taskList"></div>
+
 </div>
-
-<div id="taskList"></div>
-
-<script src="js/storage.js"></script>
-<script src="js/tasks.js"></script>
 
 </body>
 </html>
